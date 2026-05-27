@@ -1,0 +1,171 @@
+# AWS Highly Available Web Application Notes
+
+## Project Objective
+The purpose of this project was to build a Highly Available AWS infrastructure capable of handling server failures without application downtime.
+
+The project uses multiple EC2 instances across different Availability Zones connected through an Application Load Balancer.
+
+# What is High Availability?
+High Availability means designing systems that remain operational even when one server or component fails.
+In this project:
+- Multiple EC2 servers were deployed
+- Load Balancer distributed traffic
+- If one server failed, another continued serving users
+
+# What is Fault Tolerance?
+Fault Tolerance is the ability of a system to continue functioning during failures.
+
+This project achieved fault tolerance by:
+- Deploying servers in different Availability Zones
+- Using health checks
+- Redirecting traffic automatically to healthy servers
+
+# AWS Services Used
+## 1. Amazon VPC
+A Virtual Private Cloud was created to isolate and manage the network infrastructure.
+
+CIDR Used:
+10.0.0.0/16
+
+## 2. Public Subnets
+Two public subnets were created in separate Availability Zones.
+
+Purpose:
+- Host public web servers
+- Enable internet access
+
+Example:
+10.0.1.0/24
+10.0.2.0/24
+
+# 3. Internet Gateway
+An Internet Gateway was attached to the VPC to allow internet communication.
+
+Without the Internet Gateway:
+- EC2 instances would not be reachable
+- Load Balancer would not work publicly
+
+# 4. Route Tables
+Route tables controlled network traffic.
+
+Important Route:
+0.0.0.0/0 → Internet Gateway
+This route enabled public internet access.
+
+# 5. Security Groups
+Security Groups acted as virtual firewalls for EC2 instances.
+
+Configured Rules:
+- SSH Port 22
+- HTTP Port 80
+
+Best Practice:
+Restrict SSH access to only your IP address.
+
+# 6. EC2 Instances
+
+Two EC2 instances were deployed.
+
+## WebServer-AZ1
+- Hosted in Availability Zone 1
+
+## WebServer-AZ2
+- Hosted in Availability Zone 2
+
+Both servers hosted Apache web applications.
+
+# 7. Application Load Balancer (ALB)
+The ALB distributed incoming traffic between both EC2 instances.
+
+Benefits:
+- Improved availability
+- Better scalability
+- Automatic traffic distribution
+
+# 8. Target Group
+The Target Group monitored EC2 instance health.
+
+If one instance became unhealthy:
+- ALB stopped sending traffic to it
+- Healthy instance continued serving requests
+
+
+# 9. Apache Web Server
+Apache was installed on both servers.
+
+Commands Used:
+sudo yum install httpd -y
+sudo systemctl start httpd
+
+# High Availability Testing
+
+To verify fault tolerance:
+1. One EC2 instance was stopped intentionally
+2. Load Balancer automatically redirected traffic
+3. Website remained operational
+
+Result:
+- Zero downtime during single server failure
+
+
+# Networking Troubleshooting
+
+Issues faced during deployment:
+- SSH connectivity problems
+- Security Group misconfiguration
+- Target Group unhealthy status
+- Load Balancer routing issues
+
+Solutions:
+- Verified route table configuration
+- Allowed HTTP traffic
+- Restarted Apache service
+- Corrected Security Group rules
+
+# Security Best Practices
+
+- Restrict SSH access
+- Use least privilege principle
+- Separate resources across Availability Zones
+- Avoid exposing unnecessary ports
+
+
+# Free Tier Considerations
+
+Free Tier Eligible:
+- t2.micro EC2 instances
+- Basic VPC components
+
+Potentially billable:
+- Application Load Balancer
+- Data transfer
+- Additional storage
+
+Resources should be deleted after project completion to avoid charges.
+
+
+# Future Improvements
+
+Possible enhancements:
+- Auto Scaling Group
+- HTTPS with ACM
+- Route 53 custom domain
+- Terraform Infrastructure as Code
+- CloudWatch monitoring and alarms
+
+# Real World Use Case
+
+This architecture is commonly used in production environments where:
+- Applications require high uptime
+- Traffic needs to be distributed
+- Downtime must be minimized
+
+
+# Key Learnings
+
+- Multi AZ deployment
+- Load Balancer configuration
+- Target Group health monitoring
+- High Availability concepts
+- AWS networking and routing
+- Fault tolerance implementation
